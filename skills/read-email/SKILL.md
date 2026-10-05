@@ -1,64 +1,35 @@
 ---
-name: read-android-emails
-description: Read and process emails from Android email applications like Gmail or Outlook using official APIs, IMAP/POP3, or ADB/Notification listener hooks. Use when user requests reading, fetching, or analyzing emails from an Android device or Android email app.
+name: read-yahoo-emails
+description: Connect to Yahoo Mail IMAP server using Python and a user-supplied App Password to read, fetch, and process unread Yahoo emails for Gemma processing.
 ---
 
-# Read Android Emails
+# Read Yahoo Emails via IMAP
 
-Guide and execute email extraction from Android email clients using API integration, IMAP/POP3 protocols, or ADB and notification inspection on Android devices.
+Connect to Yahoo Mail using Python's standard `imaplib` library and a Yahoo App Password to fetch emails.
 
 ## Summary
 
-This skill provides step-by-step methods and reusable scripts to read emails from Android email applications (such as Gmail, Outlook, or K-9 Mail) through official cloud APIs, direct IMAP access, or local Android integration (ADB / Termux / Notification Listener).
+This skill uses a standalone Python script to authenticate with Yahoo Mail (`imap.mail.yahoo.com:993`) using a user-provided 16-character Yahoo App Password and retrieve unread or recent messages.
 
 ## When to Use
 
-- Reading or summarizing recent emails from a mobile or Android email application.
-- Automating email fetching on Android devices via Termux, ADB, or Python.
-- Setting up email extraction for Gemma models or local LLMs on Android.
+- Fetching Yahoo emails directly using an App Password.
+- Reading Yahoo Mail inbox contents programmatically in Python on Android (Termux) or desktop.
+- Preparing Yahoo email text for Gemma or local LLM summarization.
 
 ## Steps
 
-### Method 1: Gmail API Integration (Recommended for Android / Google Accounts)
+1. **Obtain Yahoo App Password:**
+   - Log in to your Yahoo Account Security settings.
+   - Select **Generate App Password**, enter an app name (e.g., "Gemma Email Reader"), and copy the 16-character key.
 
-1. Enable the Gmail API in Google Cloud Console and generate client credentials (`credentials.json`).
+2. **Run Python IMAP Script:**
+   - Pass your Yahoo email address and the 16-character App Password to `fetch_yahoo_emails.py`.
 
-2. Authenticate using OAuth 2.0 to generate a user token (`token.json`).
-
-3. Query messages using the Google API Client Library for Python:
-   - Request list of messages: `service.users().messages().list(userId='me', q='is:unread').execute()`
-   - Fetch message details: `service.users().messages().get(userId='me', id=msg_id).execute()`
-
-4. Verify success: Check that message body and header metadata are returned in JSON format.
-
-### Method 2: Direct IMAP Access (Universal for Email Apps)
-
-1. Obtain an App Password from the email provider (e.g., Gmail, Outlook, Yahoo).
-
-2. Connect using Python's built-in `imaplib` library:
-   - Server: `imap.gmail.com` (Gmail) or `outlook.office365.com` (Outlook), Port `993` (SSL).
-
-3. Search and fetch unseen emails:
-   - `mail.search(None, 'UNSEEN')`
-   - Extract `From`, `Subject`, and text payload.
-
-4. Verify success: Confirm incoming emails are parsed cleanly into plain text.
-
-### Method 3: ADB / On-Device Inspection (For Local Android UI / Notifications)
-
-1. Enable Developer Options and USB Debugging (or Wireless Debugging) on the Android device.
-
-2. Dump active notifications for email apps using ADB:
-   - `adb shell dumpsys notification | grep -A 10 -i com.google.android.gm`
-
-3. Parse notification titles and body text representing incoming emails.
-
-4. Verify success: Check ADB console output for email subject lines and snippets.
+3. **Parse Output:**
+   - Retrieve structured email metadata (`From`, `Subject`, `Date`) and text body payloads for consumption by Gemma.
 
 ## Gotchas
 
-- **2-Factor Authentication:** Standard passwords will fail with IMAP; an App Password or OAuth token is required.
-
-- **Background Restraints:** Android OS power management may restrict Termux or background scripts from running continuously.
-
-- **Privacy & Permissions:** ADB access requires explicit USB debugging authorization on the device.
+- **Authentication Failure:** Standard Yahoo account passwords will be rejected. A generated App Password is required.
+- **Port & Security:** Yahoo requires SSL connections over port `993`.
